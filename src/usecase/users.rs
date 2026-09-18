@@ -7,7 +7,7 @@ use crate::domain::{AppError, LoginCommand, Page, Pagination, Port, RegisterComm
 
 // ── Output port — usecase defines, store implements ───────────────────────────
 
-/// Output port — qarzer: domain/repository/general/UsersRepository
+/// Output port/repository/general/UsersRepository
 #[async_trait]
 pub trait UsersPort: Port {
     async fn find_by_id(&self, id: i32) -> Result<Option<User>, AppError>;

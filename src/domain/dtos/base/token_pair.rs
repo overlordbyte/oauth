@@ -1,4 +1,4 @@
-/// Access va Refresh token juftligi — qarzer: TokenResponse
+/// Access va Refresh token juftligi
 #[derive(Debug, Clone)]
 pub struct TokenPair {
     pub access_token: String,

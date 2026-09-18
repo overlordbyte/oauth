@@ -2,22 +2,22 @@ use std::fmt;
 
 use super::FieldError;
 
-/// Unified domain error — qarzer: BaseException ierarxiyasi
+/// Unified domain error
 #[derive(Debug)]
 pub enum AppError {
-    /// 404 — NOT_FOUND  (qarzer: ResourceNotFoundException)
+    /// 404 — NOT_FOUND
     NotFound { entity: &'static str },
-    /// 409 — ALREADY_EXISTS  (qarzer: ConflictException)
+    /// 409 — ALREADY_EXISTS
     AlreadyExists { entity: &'static str, field: &'static str },
-    /// 401 — UNAUTHORIZED  (qarzer: UnauthorizedException)
+    /// 401 — UNAUTHORIZED
     Unauthorized,
-    /// 403 — FORBIDDEN  (qarzer: ForbiddenException)
+    /// 403 — FORBIDDEN
     Forbidden,
-    /// 400 — INVALID_ARGUMENT  (qarzer: BadRequestException)
+    /// 400 — INVALID_ARGUMENT
     Validation(Vec<FieldError>),
-    /// 503 — UNAVAILABLE  (qarzer: ServiceUnavailableException)
+    /// 503 — UNAVAILABLE
     ServiceUnavailable(String),
-    /// 500 — INTERNAL  (qarzer: InternalServerException)
+    /// 500 — INTERNAL
     Internal(String),
 }
 

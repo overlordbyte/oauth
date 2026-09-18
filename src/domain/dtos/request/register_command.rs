@@ -1,6 +1,6 @@
 use crate::domain::error::{AppError, FieldError};
 
-/// Ro'yxatdan o'tish buyrug'i — qarzer: domain/dtos/request/RegisterRequest
+/// Ro'yxatdan o'tish buyrug'i/dtos/request/RegisterRequest
 pub struct RegisterCommand {
     pub name: String,
     pub email: String,

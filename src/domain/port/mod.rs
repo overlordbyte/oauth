@@ -1,4 +1,4 @@
-/// Barcha output portlar uchun marker trait — qarzer: Repository (marker interface)
+/// Barcha output portlar uchun marker trait
 ///
 /// UseCase layeri portni ushbu trait orqali taniydi.
 /// Store layeri bu traitni implement qiladi.

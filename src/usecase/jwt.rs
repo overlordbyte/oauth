@@ -4,7 +4,7 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode}
 
 use crate::domain::{AppError, Claims, TokenPair, User};
 
-/// JWT token yaratish va tekshirish xizmati — qarzer: JwtService / TokenService
+/// JWT token yaratish va tekshirish xizmati/ TokenService
 pub struct JwtService {
     encoding_key: EncodingKey,
     decoding_key: DecodingKey,

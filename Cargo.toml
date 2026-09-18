@@ -1,3 +1,7 @@
+[workspace]
+members = [".", "frontend"]
+resolver = "2"
+
 [package]
 name = "oauth"
 version = "0.1.0"

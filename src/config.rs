@@ -1,4 +1,4 @@
-/// Ilova konfiguratsiyasi — qarzer: application.yml + @ConfigurationProperties
+/// Ilova konfiguratsiyasi
 ///
 /// Barcha qiymatlar muhit o'zgaruvchilaridan o'qiladi.
 pub struct AppConfig {

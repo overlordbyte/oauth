@@ -1,6 +1,6 @@
 use crate::domain::enums::{Direction, SortDirection};
 
-/// Keyset pagination so'rovi — qarzer: domain/dtos/base/KeysetPagination
+/// Keyset pagination so'rovi/dtos/base/KeysetPagination
 ///
 /// Faqat NIYATNI tasvirlaydi; uni SQL'ga o'girish store qatlamining ishi.
 pub struct Pagination {

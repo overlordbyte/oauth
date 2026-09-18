@@ -1,0 +1,17 @@
+# Bu faylni nusxa olib .cargo/config.toml ga saqlang
+# (config.toml .gitignore da — mashinaga xos sozlamalar)
+
+# === Windows (PostgreSQL 17) ===
+[env]
+PQ_LIB_DIR = "C:\\Program Files\\PostgreSQL\\17\\lib"
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-L", "C:\\Program Files\\PostgreSQL\\17\\lib"]
+
+# === Linux / macOS ===
+# Ko'p hollarda libpq avtomatik topiladi.
+# Agar topilmasa:
+#
+# [env]
+# PQ_LIB_DIR = "/usr/lib/x86_64-linux-gnu"   # Ubuntu/Debian
+# PQ_LIB_DIR = "/usr/local/lib"               # macOS (brew)

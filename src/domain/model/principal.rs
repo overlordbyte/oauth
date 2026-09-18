@@ -3,7 +3,7 @@ use axum::{
     http::{StatusCode, request::Parts},
 };
 
-/// Autentifikatsiyadan o'tgan foydalanuvchi konteksti — qarzer: SecurityContext.UserPrincipal
+/// Autentifikatsiyadan o'tgan foydalanuvchi konteksti
 ///
 /// Axum handler'larida bevosita ishlatiladi:
 ///   `async fn handler(principal: UserPrincipal) -> ...`

@@ -1,4 +1,4 @@
-/// Tartiblash yo'nalishi — qarzer: domain/enums/SortDirection
+/// Tartiblash yo'nalishi/enums/SortDirection
 pub enum SortDirection {
     Asc,
     Desc,

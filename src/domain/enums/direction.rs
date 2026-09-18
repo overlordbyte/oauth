@@ -1,4 +1,4 @@
-/// Sahifalash yo'nalishi — qarzer: domain/enums/PaginationDirection
+/// Sahifalash yo'nalishi/enums/PaginationDirection
 pub enum Direction {
     /// Birinchi sahifa — kursor bo'lsa ham e'tiborga olinmaydi
     First,

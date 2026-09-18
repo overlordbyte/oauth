@@ -9,7 +9,11 @@
 # Host porti OCHILMAYDI — yagona public ingress Caddy:
 #   oauth.uz/api/*  → oauth-backend:3000
 #   oauth.uz/*      → oauth-frontend:80
-# Sirlar: ./.env -> /volumes/configs/oauth/.env (symlink)
+# Sirlar: ./.env.production -> /volumes/configs/oauth/.env.production (symlink).
+# Repo `.env.{APP_ENV}` uslubida yozilgan, shuning uchun haqiqiy fayl nomi
+# `.env.production`; ./.env esa unga ishora qiluvchi ikkinchi symlink va u FAQAT
+# compose'ning o'zgaruvchi almashtirishi uchun kerak (build args: ${PROJECT_NAME},
+# ${PROJECT_DOMAIN}) — compose avtomatik ravishda aynan `.env` nomli faylni o'qiydi.
 # ============================================================
 services:
   backend:
@@ -22,7 +26,7 @@ services:
     hostname: oauth-backend
     restart: unless-stopped
     env_file:
-      - .env
+      - .env.production
     environment:
       # .env dagi qiymat ustidan yozmaydi, faqat yo'q bo'lsa ishlaydi
       RUST_LOG: ${RUST_LOG:-info}

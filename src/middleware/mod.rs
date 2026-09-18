@@ -2,5 +2,6 @@
 ///
 /// Domain va usecase qatlamlari bu moduldan MUTLAQO BEXABAR —
 /// bu qarama-qarshi yo'nalishli bog'liqlikni oldini oladi (clean arch).
+pub mod client_ip;
 pub mod cors;
 pub mod rate_limit;

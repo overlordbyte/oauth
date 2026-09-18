@@ -8,19 +8,17 @@
 //! Arxitektura: `middleware` qatlami — domain/usecase ga mutlaqo bog'liq emas,
 //! faqat transport (HTTP) qatlamiga tegishli cross-cutting concern.
 
-use std::{
-    net::{IpAddr, SocketAddr},
-    num::NonZeroU32,
-    sync::Arc,
-};
+use std::{net::IpAddr, num::NonZeroU32, sync::Arc};
 
 use axum::{
-    extract::{ConnectInfo, Request},
+    extract::Request,
     http::StatusCode,
     middleware::Next,
     response::{IntoResponse, Response},
 };
 use governor::{DefaultKeyedRateLimiter, Quota, RateLimiter};
+
+use crate::middleware::client_ip;
 
 /// IP manzil bo'yicha cheklovchi — dastur davomida bir marta yaratiladi,
 /// `Arc` orqali routerlar orasida bo'lishiladi.
@@ -47,15 +45,16 @@ pub fn api() -> IpRateLimiter {
 
 /// Tower/Axum middleware: limitni tekshirib, oshib ketsa `429` qaytaradi.
 ///
-/// IP manzilni `ConnectInfo<SocketAddr>` extensiondan oladi —
-/// buning uchun server `into_make_service_with_connect_info` bilan
-/// ishga tushirilishi shart (main.rs da sozlangan).
+/// Klient IP si [`client_ip::resolve`] orqali aniqlanadi: reverse proxy ortida
+/// `X-Forwarded-For` dagi haqiqiy manzil, aks holda TCP ulanish manbasi
+/// (`ConnectInfo<SocketAddr>` — buning uchun server `into_make_service_with_connect_info`
+/// bilan ishga tushirilishi shart, main.rs da sozlangan).
+///
+/// ⚠️ To'g'ridan-to'g'ri `ConnectInfo` ni ISHLATMANG: prodda ilova Caddy ortida
+/// turadi va u holda hamma so'rov bitta manzildan kelgandek ko'rinadi — limit
+/// butun internet uchun umumiy bo'lib qoladi.
 pub async fn enforce(limiter: IpRateLimiter, request: Request, next: Next) -> Response {
-    let ip = request
-        .extensions()
-        .get::<ConnectInfo<SocketAddr>>()
-        .map(|info| info.0.ip())
-        .unwrap_or(IpAddr::from([0, 0, 0, 0]));
+    let ip = client_ip::resolve(&request);
 
     match limiter.check_key(&ip) {
         Ok(_) => next.run(request).await,

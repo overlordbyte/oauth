@@ -1,0 +1,86 @@
+# ============================================================
+# PRODUCTION — abdurakhmon VPS.
+#   cd /volumes/server-stack/oauth && docker compose up -d --build
+#
+# Ikki konteyner, bitta Dockerfile (target'lar bilan):
+#   oauth-backend   axum API   → stack-net dagi `postgres` bazasiga ulanadi
+#   oauth-frontend  nginx      → Dioxus wasm SPA
+#
+# Host porti OCHILMAYDI — yagona public ingress Caddy:
+#   oauth.uz/api/*  → oauth-backend:3000
+#   oauth.uz/*      → oauth-frontend:80
+# Sirlar: ./.env -> /volumes/configs/oauth/.env (symlink)
+# ============================================================
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    image: oauth-backend:latest
+    container_name: oauth-backend
+    hostname: oauth-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # .env dagi qiymat ustidan yozmaydi, faqat yo'q bo'lsa ishlaydi
+      RUST_LOG: ${RUST_LOG:-info}
+    networks:
+      - stack-net
+    healthcheck:
+      # Ilovada alohida /health yo'q — bu endpoint bazaga ham tegadi,
+      # ya'ni "javob beryapti + DB pool tirik" degani.
+      test: ["CMD-SHELL", "curl -fsS 'http://127.0.0.1:3000/api/v1/users?limit=1' >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          # Rust + bb8 pool — amalda ~15 MiB; zaxira bilan
+          memory: 256m
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+      args:
+        # build.rs shu qiymatlarni wasm ichiga yozadi (brauzerda env yo'q)
+        PROJECT_NAME: ${PROJECT_NAME:?set PROJECT_NAME in .env}
+        PROJECT_DOMAIN: ${PROJECT_DOMAIN:?set PROJECT_DOMAIN in .env}
+    image: oauth-frontend:latest
+    container_name: oauth-frontend
+    hostname: oauth-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - stack-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80/ >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+
+networks:
+  stack-net:
+    name: stack-net
+    external: true

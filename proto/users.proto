@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package users;
+
+service Users {
+    rpc GetUser (GetUserRequest) returns (User);
+    rpc ListUsers (ListUsersRequest) returns (ListUsersResponse);
+}
+
+message User {
+    uint32 id = 1;
+    string name = 2;
+    string email = 3;
+}
+
+message GetUserRequest {
+    uint32 id = 1;
+}
+
+message ListUsersRequest {
+    optional int32 after_id  = 1;
+    optional string name_contains  = 2;
+    optional string email_contains = 3;
+    uint32 limit = 4;
+    optional int32 before_id = 5;
+}
+
+message ListUsersResponse {
+    repeated User users = 1;
+    optional int32 next_cursor = 2;
+    bool has_next = 3;
+    bool has_prev = 4;
+    optional int32 prev_cursor = 5;
+    uint32 count = 6;
+    uint32 limit = 7;
+}

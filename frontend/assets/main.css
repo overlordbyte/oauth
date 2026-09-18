@@ -1,11 +1,22 @@
-*, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+/* Bazaviy qatlam — ranglar dx-components-theme.css dagi tokenlardan olinadi,
+   shuning uchun dark/light rejim avtomatik ishlaydi. */
+
+:root {
+  /* Brauzer CSS kelgunicha ham to'g'ri fonni chizsin, scrollbar va forma
+     elementlari ham rejimga mos bo'lsin. */
+  color-scheme: light dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #f9fafb;
-    color: #111827;
+  background-color: var(--primary-color-3);
+  color: var(--secondary-color-1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }

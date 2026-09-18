@@ -1,11 +1,8 @@
 /// Tartiblash yo'nalishi/enums/SortDirection
+#[derive(Default)]
 pub enum SortDirection {
+    #[default]
     Asc,
     Desc,
 }
 
-impl Default for SortDirection {
-    fn default() -> Self {
-        Self::Asc
-    }
-}

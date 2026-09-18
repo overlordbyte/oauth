@@ -1,66 +1,93 @@
-pub mod proto {
-    tonic::include_proto!("users");
-}
+//! Foydalanuvchilar uchun REST controller.
 
-use tonic::{Request, Response, Status};
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+};
+use serde::{Deserialize, Serialize};
 
-use proto::users_server::UsersServer;
-use proto::{GetUserRequest, ListUsersRequest, ListUsersResponse, User};
-
-use crate::domain::{Direction, Pagination, UserRequest};
+use crate::domain::{AppError, Direction, Page, Pagination, User, UserRequest};
 use crate::state::AppState;
 
-pub struct UsersService {
-    state: AppState,
+/// Mijozga qaytariladigan foydalanuvchi — `password_hash` ataylab yo'q.
+#[derive(Serialize)]
+pub struct UserBody {
+    id: i32,
+    name: String,
+    email: String,
 }
 
-impl UsersService {
-    fn new(state: AppState) -> Self {
-        Self { state }
+impl From<User> for UserBody {
+    fn from(u: User) -> Self {
+        Self { id: u.id, name: u.name, email: u.email }
     }
 }
 
-#[tonic::async_trait]
-impl proto::users_server::Users for UsersService {
-    async fn get_user(&self, req: Request<GetUserRequest>) -> Result<Response<User>, Status> {
-        let user = self.state.users
-            .get(req.into_inner().id as i32)
-            .await
-            .map_err(super::to_status)?;
-        Ok(Response::new(User { id: user.id as u32, name: user.name, email: user.email }))
-    }
+/// Keyset sahifalash meta-ma'lumoti bilan ro'yxat javobi.
+#[derive(Serialize)]
+pub struct PageBody<T> {
+    items: Vec<T>,
+    count: usize,
+    limit: i64,
+    has_next: bool,
+    has_prev: bool,
+    next_cursor: Option<i32>,
+    prev_cursor: Option<i32>,
+}
 
-    async fn list_users(&self, req: Request<ListUsersRequest>) -> Result<Response<ListUsersResponse>, Status> {
-        let r = req.into_inner();
-        // before_id mavjud → Prev yo'nalish; before_id=0 va after_id yo'q → First
-        let (cursor, direction) = if let Some(before) = r.before_id {
-            (Some(before), Direction::Prev)
-        } else {
-            (r.after_id, Direction::Next)
-        };
-        let limit = if r.limit == 0 { None } else { Some(r.limit) };
-        let pagination = Pagination::new(cursor, limit, direction);
-        let params = UserRequest { name_contains: r.name_contains, email_contains: r.email_contains };
-        let page = self.state.users.list(&pagination, &params).await.map_err(super::to_status)?;
-        let (next_cursor, has_next, has_prev, prev_cursor, count, limit) = (
-            page.next_cursor(), page.has_next(), page.has_prev(),
-            page.prev_cursor(), page.count(), page.limit(),
-        );
-        let users = page.into_items().into_iter()
-            .map(|u| User { id: u.id as u32, name: u.name, email: u.email })
-            .collect();
-        Ok(Response::new(ListUsersResponse {
-            users,
-            next_cursor,
+impl<T> From<Page<T>> for PageBody<T> {
+    fn from(page: Page<T>) -> Self {
+        let (count, limit) = (page.count(), page.limit());
+        let (has_next, has_prev) = (page.has_next(), page.has_prev());
+        let (next_cursor, prev_cursor) = (page.next_cursor(), page.prev_cursor());
+        Self {
+            items: page.into_items(),
+            count,
+            limit,
             has_next,
             has_prev,
+            next_cursor,
             prev_cursor,
-            count: count as u32,
-            limit: limit as u32,
-        }))
+        }
     }
 }
 
-pub fn service(state: AppState) -> UsersServer<UsersService> {
-    UsersServer::new(UsersService::new(state))
+/// `GET /api/v1/users` query parametrlari.
+#[derive(Deserialize, Default)]
+pub struct ListQuery {
+    /// Shu id dan keyingi sahifa
+    after_id: Option<i32>,
+    /// Shu id dan oldingi sahifa (berilsa `after_id` e'tiborga olinmaydi)
+    before_id: Option<i32>,
+    limit: Option<u32>,
+    name_contains: Option<String>,
+    email_contains: Option<String>,
+}
+
+pub async fn list(
+    State(state): State<AppState>,
+    Query(q): Query<ListQuery>,
+) -> Result<Json<PageBody<UserBody>>, AppError> {
+    // before_id berilgan bo'lsa — orqaga yo'nalish
+    let (cursor, direction) = match q.before_id {
+        Some(before) => (Some(before), Direction::Prev),
+        None => (q.after_id, Direction::Next),
+    };
+
+    let pagination = Pagination::new(cursor, q.limit, direction);
+    let params = UserRequest {
+        name_contains: q.name_contains,
+        email_contains: q.email_contains,
+    };
+
+    let page = state.users.list(&pagination, &params).await?;
+    Ok(Json(page.map(UserBody::from).into()))
+}
+
+pub async fn get(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Json<UserBody>, AppError> {
+    let user = state.users.get(id).await?;
+    Ok(Json(user.into()))
 }

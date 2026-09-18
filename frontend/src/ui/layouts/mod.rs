@@ -1,1 +1,1 @@
-// Layout komponentlar shu yerga qo'shiladi
+pub mod auth_layout;

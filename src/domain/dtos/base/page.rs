@@ -2,7 +2,7 @@
 /// Qarzer: domain/dtos/base/KeysetPage<T>
 ///
 /// Bu HTTP javobi emas — na code, na status bor.
-/// Controller uni proto javobiga o'giradi.
+/// Controller uni JSON javobiga o'giradi.
 pub struct Page<T> {
     items: Vec<T>,
     /// Qaytgan qatorlar soni (items.len())

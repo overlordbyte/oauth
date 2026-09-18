@@ -1,5 +1,0 @@
-[env]
-PQ_LIB_DIR = "C:\\Program Files\\PostgreSQL\\17\\lib"
-
-[target.x86_64-pc-windows-msvc]
-rustflags = ["-L", "C:\\Program Files\\PostgreSQL\\17\\lib"]

@@ -1,9 +1,19 @@
 use dioxus::prelude::*;
-use crate::{application::state::auth_state::clear_tokens, router::Route};
+use crate::{
+    application::state::auth_state::{clear_tokens, is_logged_in},
+    router::Route,
+};
 
 #[component]
 pub fn HomePage() -> Element {
     let nav = use_navigator();
+
+    // Token bo'lmasa (yoki chiqilgach) — login sahifasiga qaytaramiz
+    use_effect(move || {
+        if !is_logged_in() {
+            nav.replace(Route::LoginPage {});
+        }
+    });
 
     let on_logout = move |_| {
         clear_tokens();

@@ -1,1 +1,2 @@
-// Reusable komponentlar shu yerga qo'shiladi
+pub mod logo;
+pub mod provider_button;

@@ -1,0 +1,12 @@
+/* Provayder tugmasi: ikonka chapda qat'iy o'rinda turadi, yozuvlar esa
+   ustma-ust tekislanadi — ro'yxatni ko'z bilan tez o'qish shunda oson. */
+.provider-button {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.75rem;
+}
+
+.provider-icon {
+  flex-shrink: 0;
+  color: var(--secondary-color-4);
+}

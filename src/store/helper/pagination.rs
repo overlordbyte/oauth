@@ -26,7 +26,7 @@ where
     let has_prev = if is_backward { has_more } else { came_from_cursor };
 
     let next_cursor = if has_next { rows.last().map(&cursor_key) } else { None };
-    let prev_cursor = if has_prev { rows.get(0).map(&cursor_key) } else { None };
+    let prev_cursor = if has_prev { rows.first().map(&cursor_key) } else { None };
 
     Page::of(rows, limit, has_next, has_prev, next_cursor, prev_cursor)
 }

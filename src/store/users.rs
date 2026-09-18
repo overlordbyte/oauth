@@ -79,10 +79,8 @@ impl UsersPort for PgUsersStore {
         // Har yo'nalish uchun alohida query (Diesel type inference muammosi)
         let rows: Vec<UserDb> = if sql_asc {
             let mut q = t::table.select(UserDb::as_select()).into_boxed();
-            if !ignore_cursor {
-                if let Some(c) = pagination.cursor {
-                    if cursor_gt { q = q.filter(t::id.gt(c)); } else { q = q.filter(t::id.lt(c)); }
-                }
+            if !ignore_cursor && let Some(c) = pagination.cursor {
+                if cursor_gt { q = q.filter(t::id.gt(c)); } else { q = q.filter(t::id.lt(c)); }
             }
             if let Some(n) = &params.name_contains { q = q.filter(t::name.ilike(format!("%{n}%"))); }
             if let Some(e) = &params.email_contains { q = q.filter(t::email.ilike(format!("%{e}%"))); }
@@ -90,10 +88,8 @@ impl UsersPort for PgUsersStore {
                 .map_err(|e| AppError::Internal(e.to_string()))?
         } else {
             let mut q = t::table.select(UserDb::as_select()).into_boxed();
-            if !ignore_cursor {
-                if let Some(c) = pagination.cursor {
-                    if cursor_gt { q = q.filter(t::id.gt(c)); } else { q = q.filter(t::id.lt(c)); }
-                }
+            if !ignore_cursor && let Some(c) = pagination.cursor {
+                if cursor_gt { q = q.filter(t::id.gt(c)); } else { q = q.filter(t::id.lt(c)); }
             }
             if let Some(n) = &params.name_contains { q = q.filter(t::name.ilike(format!("%{n}%"))); }
             if let Some(e) = &params.email_contains { q = q.filter(t::email.ilike(format!("%{e}%"))); }

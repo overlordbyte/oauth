@@ -15,5 +15,9 @@ pub fn router() -> Router<AppState> {
             rate_limit::enforce(auth_limiter.clone(), req, next)
         }));
 
-    Router::new().merge(auth_routes)
+    let user_routes = Router::new()
+        .route(routes::USERS, get(controller::users::list))
+        .route(routes::USER_BY_ID, get(controller::users::get));
+
+    Router::new().merge(auth_routes).merge(user_routes)
 }

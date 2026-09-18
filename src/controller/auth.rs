@@ -6,8 +6,12 @@ use axum::{
 
 pub async fn login(Path(provider): Path<String>) -> impl IntoResponse {
     match provider.as_str() {
-        "google" => Redirect::temporary("https://accounts.google.com/o/oauth2/v2/auth").into_response(),
-        "github" => Redirect::temporary("https://github.com/login/oauth/authorize").into_response(),
+        "google" => {
+            Redirect::temporary("https://accounts.google.com/o/oauth2/v2/auth").into_response()
+        }
+        "github" => {
+            Redirect::temporary("https://github.com/login/oauth/authorize").into_response()
+        }
         _ => StatusCode::NOT_FOUND.into_response(),
     }
 }

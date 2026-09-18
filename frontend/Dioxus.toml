@@ -3,14 +3,18 @@ name = "frontend"
 default_platform = "web"
 
 [web.app]
-title = "OAuth App"
+# Faqat wasm yuklangunicha ko'rinadi. Haqiqiy sarlavhani App komponenti
+# PROJECT_NAME dan qo'yadi (build.rs -> env!). Dioxus.toml muhit
+# o'zgaruvchilarini o'qiy olmaydi, shuning uchun bu yerda literal.
+title = "oauth.uz"
 
 [web.watcher]
 reload_html = true
 watch_path = ["src", "assets"]
 
 [web.resource]
-style = ["assets/main.css"]
+# Stillar main.rs da asset!() orqali ulanadi
+style = []
 
 [web.resource.dev]
 style = []

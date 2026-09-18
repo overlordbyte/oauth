@@ -1,15 +1,22 @@
 use dioxus::prelude::*;
 use crate::{
     application::state::auth_state::set_tokens,
-    domain::model::auth::LoginRequest,
+    components::{
+        button::{Button, ButtonSize},
+        input::Input,
+        label::Label,
+        separator::Separator,
+    },
+    domain::model::{auth::LoginRequest, provider::OAuthProvider},
     infrastructure::api::auth_api,
     router::Route,
+    ui::{components::provider_button::ProviderButton, layouts::auth_layout::AuthLayout},
 };
 
 #[component]
 pub fn LoginPage() -> Element {
-    let mut username = use_signal(|| String::new());
-    let mut password = use_signal(|| String::new());
+    let mut email = use_signal(String::new);
+    let mut password = use_signal(String::new);
     let mut error = use_signal(|| Option::<String>::None);
     let mut loading = use_signal(|| false);
     let nav = use_navigator();
@@ -17,7 +24,7 @@ pub fn LoginPage() -> Element {
     let on_submit = move |evt: FormEvent| {
         evt.prevent_default();
         let req = LoginRequest {
-            username: username.read().clone(),
+            email: email.read().clone(),
             password: password.read().clone(),
         };
         spawn(async move {
@@ -35,39 +42,59 @@ pub fn LoginPage() -> Element {
     };
 
     rsx! {
-        div {
-            style: "display:flex;align-items:center;justify-content:center;min-height:100vh;",
-            div {
-                style: "background:#fff;padding:2rem;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);width:360px;",
-                h1 { style: "margin-bottom:1.5rem;font-size:1.5rem;", "Kirish" }
-                if let Some(err) = error.read().as_ref() {
-                    p { style: "color:red;margin-bottom:1rem;font-size:.875rem;", "{err}" }
+        AuthLayout {
+            title: "Hisobingizga kiring",
+            description: "Davom etish uchun usulni tanlang",
+
+            div { class: "auth-providers",
+                for provider in OAuthProvider::ALL {
+                    ProviderButton { key: "{provider.id()}", provider }
                 }
-                form { onsubmit: on_submit,
-                    div { style: "margin-bottom:1rem;",
-                        label { style: "display:block;margin-bottom:.25rem;font-size:.875rem;", "Foydalanuvchi nomi" }
-                        input {
-                            style: "width:100%;padding:.5rem;border:1px solid #d1d5db;border-radius:4px;",
-                            r#type: "text",
-                            value: "{username}",
-                            oninput: move |e| username.set(e.value()),
-                        }
+            }
+
+            div { class: "auth-divider",
+                Separator { horizontal: true, decorative: true }
+                span { class: "auth-divider-text", "yoki" }
+                Separator { horizontal: true, decorative: true }
+            }
+
+            form { class: "auth-form", onsubmit: on_submit,
+                div { class: "auth-field",
+                    Label { html_for: "email", "Email" }
+                    Input {
+                        id: "email",
+                        r#type: "email",
+                        autocomplete: "email",
+                        placeholder: "siz@example.com",
+                        value: "{email}",
+                        oninput: move |e: FormEvent| email.set(e.value()),
                     }
-                    div { style: "margin-bottom:1.5rem;",
-                        label { style: "display:block;margin-bottom:.25rem;font-size:.875rem;", "Parol" }
-                        input {
-                            style: "width:100%;padding:.5rem;border:1px solid #d1d5db;border-radius:4px;",
-                            r#type: "password",
-                            value: "{password}",
-                            oninput: move |e| password.set(e.value()),
-                        }
+                }
+                div { class: "auth-field",
+                    Label { html_for: "password", "Parol" }
+                    Input {
+                        id: "password",
+                        r#type: "password",
+                        autocomplete: "current-password",
+                        value: "{password}",
+                        oninput: move |e: FormEvent| password.set(e.value()),
                     }
-                    button {
-                        style: "width:100%;padding:.625rem;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:1rem;",
-                        r#type: "submit",
-                        disabled: *loading.read(),
-                        if *loading.read() { "Yuklanmoqda..." } else { "Kirish" }
-                    }
+                }
+
+                if let Some(err) = error.read().as_ref() {
+                    p { class: "auth-error", role: "alert", "{err}" }
+                }
+
+                p { class: "auth-alt",
+                    "Hisobingiz yo'qmi? "
+                    Link { to: Route::RegisterPage {}, "Ro'yxatdan o'ting" }
+                }
+
+                Button {
+                    r#type: "submit",
+                    size: ButtonSize::Lg,
+                    disabled: *loading.read(),
+                    if *loading.read() { "Tekshirilmoqda..." } else { "Kirish" }
                 }
             }
         }
